@@ -21,13 +21,13 @@ function App() {
     await fetchWeatherData(city);
   }
 
-  // useEffect(() => {
-  //   const lastCity = localStorage.getItem("lastCity");
-  //   if (lastCity) {
-  //     setCity(lastCity);
-  //     fetchWeatherData(lastCity);
-  //   }
-  // }, []);
+  useEffect(() => {
+    const lastCity = localStorage.getItem("lastCity");
+    if (lastCity) {
+      setCity(lastCity);
+      fetchWeatherData(lastCity);
+    }
+  }, []);
 
   // hit api and fetch weather details
   async function fetchWeatherData(cityName) {
