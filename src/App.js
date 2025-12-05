@@ -1,15 +1,24 @@
-import './App.css';
-import { useState, useEffect } from 'react';
-import WeatherDetails from './WeatherDetails';
+import "./App.css";
+import { useState, useEffect } from "react";
+import WeatherDetails from "./WeatherDetails";
+import Alert from "./Alert";
 
 function App() {
   // api key generated on https://openweathermap.org/api, used in url to fetch city details
-  const apiKey = "982ef80792a645bde56543772ee0fb23"
-
+  const apiKey = "982ef80792a645bde56543772ee0fb23";
   // hooks used to assign values to city and wether variable
-  const [city, setCity] = useState("")
+  const [city, setCity] = useState("");
   const [weather, setWeather] = useState(null);
- 
+  const [alert, setAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
+  function showAlert(message) {
+    setAlert(true);
+    setAlertMessage(message);
+    setTimeout(function () {
+      setAlert(false);
+    }, 1500);
+  }
   // used to store value in city variable on typing value in input bar
   function handleOnChange(event) {
     setCity(event.target.value);
@@ -27,27 +36,26 @@ function App() {
       setCity(lastCity);
       fetchWeatherData(lastCity);
     }
-  }, []);
+  }, [fetchWeatherData]);
 
   // hit api and fetch weather details
   async function fetchWeatherData(cityName) {
-    // user enter white space 
     if (!cityName || cityName.trim().length === 0) {
-      alert("Enter a city name");
+      showAlert("Please enter a city name");
       return;
     }
     // generate api link with city name and api key
     const api = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&units=metric&appid=${apiKey}`;
-    // api hit and wait for response 
+    // api hit and wait for response
     const response = await fetch(api);
     // rate-limit
     if (response.status === 429) {
-      alert("You’ve made too many requests. Please wait a minute and try again.");
+      showAlert("You’ve made too many requests. Please wait a minute and try again.");
       return;
     }
     // invalid city name
     if (!response.ok) {
-      alert("Enter a valid city name");
+      showAlert("Enter a valid city name");
       return;
     }
     // json parsing
@@ -60,16 +68,14 @@ function App() {
 
   return (
     <>
-      <div className='container app'>
+      {alert && <Alert message={alertMessage} />}
+      <div className="container app">
         <div className="input-group mb-3 search-box">
           <input type="text" className="form-control" placeholder="Enter City" aria-label="city" aria-describedby="basic-addon1" value={city} onChange={handleOnChange} />
           <button onClick={handleOnClick}>🔍</button>
         </div>
       </div>
-      {/* passing null as wether 
-      <WeatherDetails data={weather} /> */}
-      {/* if weather contains some data then only go to WeatherDetails */}
-      {weather ? <WeatherDetails data={weather} /> : null}
+      {weather && <WeatherDetails data={weather} />}
     </>
   );
 }
